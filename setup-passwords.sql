@@ -1,6 +1,7 @@
 -- File for Password Management section of Final Project
 
 SET GLOBAL log_bin_trust_function_creators = 1;
+DROP FUNCTION IF EXISTS make_salt;
 -- (Provided) This function generates a specified number of characters for using as a
 -- salt in passwords.
 DELIMITER !
@@ -23,13 +24,7 @@ BEGIN
 END !
 DELIMITER ;
 
--- Provided (you may modify if you choose)
--- This table holds information for authenticating users based on
--- a password.  Passwords are not stored plaintext so that they
--- cannot be used by people that shouldn't have them.
--- You may extend that table to include an is_admin or role attribute if you 
--- have admin or other roles for users in your application 
--- (e.g. store managers, data managers, etc.)
+DROP TABLE IF EXISTS user_info;
 CREATE TABLE user_info (
     -- Usernames are up to 20 characters.
     username VARCHAR(20) PRIMARY KEY,
@@ -49,6 +44,7 @@ CREATE TABLE user_info (
 -- Adds a new user to the user_info table, using the specified password (max
 -- of 20 characters). Salts the password with a newly-generated salt value,
 -- and then the salt and hash values are both stored in the table.
+DROP PROCEDURE IF EXISTS sp_add_user;
 DELIMITER !
 CREATE PROCEDURE sp_add_user(new_username VARCHAR(20), password VARCHAR(20))
 BEGIN
@@ -70,6 +66,7 @@ DELIMITER ;
 -- in the user_info table.  Returns 1 if the user appears in the table, and the
 -- specified password hashes to the value for the user. Otherwise returns 0.
 DELIMITER !
+DROP FUNCTION IF EXISTS authenticate;
 CREATE FUNCTION authenticate(username VARCHAR(20), password VARCHAR(20))
 RETURNS TINYINT DETERMINISTIC
 BEGIN
@@ -92,7 +89,7 @@ DELIMITER ;
 -- Add at least two users into your user_info table so that when we run this file,
 -- we will have examples users in the database.
 CALL sp_add_user('ding', '6969696969');
-CALL sp_add_user('dzli', '1234567890');
+CALL sp_add_user('dzli', '123456');
 
 -- [Problem 1d]
 -- Optional: Create a procedure sp_change_password to generate a new salt and change the given

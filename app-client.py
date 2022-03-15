@@ -32,7 +32,7 @@ def get_conn():
           user='fan',
           port='3306',
           password='fanpw',
-          database='worldcupdb'
+          database='fifa'
         )
         print('Successfully connected.')
         return conn
@@ -92,7 +92,7 @@ def year_wins_query():
             sys.stderr(err)
             sys.exit(1)
         else:
-            sys.stderr('An error occurred, give something useful for clients...')
+            sys.stderr('An error occurred.')
 
 def team_wins_query():
     """
@@ -116,27 +116,8 @@ GROUP BY winner ORDER BY titles DESC;
             sys.stderr(err)
             sys.exit(1)
         else:
-            sys.stderr('An error occurred, give something useful for clients...')
+            sys.stderr('An error occurred.')
 
-# ----------------------------------------------------------------------
-# Functions for Logging Users In
-# ----------------------------------------------------------------------
-def log_in():
-    """
-    Prompts user for username and password to log in to database.
-    """
-    cursor = conn.cursor()
-    username = input('Enter username: ')[0]
-    password = input('Enter password: ')[0]
-    func = "SELECT authenticate(%s, %s);"
-    try:
-        cursor.execute(func, (username, password))
-        result = cursor.fetchone()
-        if r == 1:
-            print('Successfully logged in.')
-    except:
-        print("Unexpected error:", sys.exc_info()[0])
-        raise
 # ----------------------------------------------------------------------
 # Command-Line Functionality
 # ----------------------------------------------------------------------
@@ -147,7 +128,7 @@ def show_options():
     sending a request to do <x>, etc.
     """
     print('What would you like to do? ')
-    print('  (l) login')
+    # print('  (l) login')
     print('  (g) view all time top World Cup goal scorers')
     print('  (y) view World Cup winners by year')
     print('  (w) view teams with most World Cup titles')
@@ -157,8 +138,8 @@ def show_options():
         ans = input('Enter an option: ')[0].lower()
         if ans == 'q':
             quit_ui()
-        elif ans == 'l':
-            log_in()
+        # elif ans == 'l':
+            # log_in()
         elif ans == 'g':
             player_goals_query()
         elif ans == 'y':

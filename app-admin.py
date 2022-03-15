@@ -34,7 +34,7 @@ def get_conn():
           user='fifaadmin',
           port='3306',
           password='adminpw',
-          database='worldcupdb'
+          database='fifa'
         )
         print('Successfully connected.')
         return conn
@@ -54,23 +54,34 @@ def get_conn():
 # ----------------------------------------------------------------------
 def add_data():
     cursor = conn.cursor()
-    year = input('Enter World Cup year: ')[0]
-    host_country = input('Enter host country: ')[0]
-    first_place = input('Enter winner: ')[0]
-    second_place = input('Enter second place: ')[0]
-    third_place = input('Enter third place: ')[0]
-    fourth_place = input('Enter fourth place: ')[0]
-    goals_scored = input('Enter total goals scored: ')[0]
+    year = input('Enter World Cup year: ')
+    host_country = input('Enter host country: ')
+    first_place = input('Enter winner: ')
+    second_place = input('Enter second place: ')
+    third_place = input('Enter third place: ')
+    fourth_place = input('Enter fourth place: ')
+    goals_scored = input('Enter total goals scored: ')
 
-    args = [year, host_country, first_place, second_place,
-            third_place, fourth_place, goals_scored]
-    
+    args = (year, host_country, first_place, second_place,
+            third_place, fourth_place, goals_scored)
+
     try:
-        cursor.callproc('fifa_new_tournament', args=args)
-        print('Sucessfully added new tournament!')
-    except:
-        print("Unexpected error:", sys.exc_info()[0])
-        raise
+        sql = "INSERT INTO tournaments VALUES (%s,%s,%s,%s,%s,%s,%s);"
+        cursor.execute(sql, params=args)
+        conn.commit()
+        print(cursor.rowcount, "record inserted.")
+        cursor.execute("SELECT * FROM country_wins;")
+        rows = cursor.fetchall()
+        for row in rows: 
+            (country, wins) = row
+            print('  ', f'"{country}"', f'({wins})', 'wins')
+        return
+    except mysql.connector.Error as err:
+        if DEBUG:
+            sys.stderr(err)
+            sys.exit(1)
+        else:
+            sys.stderr('An error occurred.')
 # ----------------------------------------------------------------------
 # Functions for Logging Users In
 # ----------------------------------------------------------------------
@@ -79,17 +90,17 @@ def log_in():
     Prompts user for username and password to log in to database.
     """
     cursor = conn.cursor()
-    username = input('Enter username: ')[0]
-    password = input('Enter password: ')[0]
+    username = input('Enter username: ')
+    password = input('Enter password: ')
     func = "SELECT authenticate(%s, %s);"
     try:
         cursor.execute(func, (username, password))
-        result = cursor.fetchone()
-        if r == 1:
-            print('Successfully logged in.')
-    except:
-        print("Unexpected error:", sys.exc_info()[0])
-        raise
+    except mysql.connector.Error as err:
+        if DEBUG:
+            sys.stderr(err)
+            sys.exit(1)
+        else:
+            sys.stderr('An error occurred.')
 # ----------------------------------------------------------------------
 # Command-Line Functionality
 # ----------------------------------------------------------------------
@@ -102,9 +113,10 @@ def show_admin_options():
     print('What would you like to do? ')
     print('  (l) - login')
     print('  (a) - add new World Cup tournament data')
+    print('  (q) - quit')
     print()
-    ans = input('Enter an option: ').lower()
     while True:
+        ans = input('Enter an option: ')[0].lower()
         if ans == 'q':
             quit_ui()
         elif ans == 'l':
