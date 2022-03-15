@@ -18,14 +18,14 @@ $ python3 app-admin.py <br/>
 OR <br/>
 $ python3 app-client.py <br/>
 
-Now, you should either be in the admin or the client program.
-For admin:
-(l) - log into the app with admin information
-(a) - add a new World Cup into the fifa database
-(q) - quit the python program
+Now, you should either be in the admin or the client program. <br/>
+For admin: <br/>
+(l) - log into the app with admin information <br/>
+(a) - add a new World Cup into the fifa database <br/>
+(q) - quit the python program <br/>
 
-For client:
-(g) - view all time top World Cup goal scorers
-(y) - view World Cup winners by year
-(w) - view teams with most World Cup titles
-(q) - quit
+For client: <br/>
+(g) - view all time top World Cup goal scorers <br/>
+(y) - view World Cup winners by year <br/>
+(w) - view teams with most World Cup titles <br/>
+(q) - quit <br/>
