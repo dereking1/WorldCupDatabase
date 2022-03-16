@@ -1,6 +1,6 @@
 """
 CS121 Final
-(Client version)
+(Admin version)
 
 Authors: Derek Ing, Daniel Li
 Emails: ding@caltech.edu, dzli@caltech.edu
@@ -12,9 +12,11 @@ by goals scored and number of titles, respectively.
 """
 import sys
 import mysql.connector
+
 import mysql.connector.errorcode as errorcode
 
 DEBUG = False
+
 
 # ----------------------------------------------------------------------
 # SQL Utility Functions
@@ -27,9 +29,9 @@ def get_conn():
     try:
         conn = mysql.connector.connect(
           host='localhost',
-          user='fan',
+          user='fifaadmin',
           port='3306',
-          password='fanpw',
+          password='adminpw',
           database='fifa'
         )
         print('Successfully connected.')
@@ -48,110 +50,92 @@ def get_conn():
 # ----------------------------------------------------------------------
 # Functions for Command-Line Options/Query Execution
 # ----------------------------------------------------------------------
-def player_goals_query():
-    """
-    Shows a list of players with their total number of World Cup goals.
-    Results are sorted by total goals in descending order.
-    """
+def add_data():
     cursor = conn.cursor()
-    sql = """
-SELECT player_name, COUNT(*) AS total_goals 
-FROM match_goals NATURAL JOIN player 
-GROUP BY player_name ORDER BY total_goals DESC;
-"""
-    try:
-        cursor.execute(sql)
-        rows = cursor.fetchall()
-        for row in rows:
-            (player_name, total_goals) = row
-            print('  ', f'"{player_name}"', ':', f'({total_goals})', 'goals')
-    except mysql.connector.Error as err:
-        if DEBUG:
-            sys.stderr(err)
-            sys.exit(1)
-        else:
-            sys.stderr('An error occurred, give something useful for clients...')
+    year = input('Enter World Cup year: ')
+    host_country = input('Enter host country: ')
+    first_place = input('Enter winner: ')
+    second_place = input('Enter second place: ')
+    third_place = input('Enter third place: ')
+    fourth_place = input('Enter fourth place: ')
+    goals_scored = input('Enter total goals scored: ')
 
-def year_wins_query():
-    """
-    Shows a list of World Cup years with World Cup winner that year.
-    Results are sorted by year in ascending order.
-    """
-    cursor = conn.cursor()
-    sql = "SELECT year, winner FROM tournaments ORDER BY year ASC;"
+    args = (year, host_country, first_place, second_place,
+            third_place, fourth_place, goals_scored)
+
     try:
-        cursor.execute(sql)
+        sql = "INSERT INTO tournaments VALUES (%s,%s,%s,%s,%s,%s,%s);"
+        cursor.execute(sql, params=args)
+        conn.commit()
+        print(cursor.rowcount, "record inserted.")
+        cursor.execute("SELECT * FROM country_wins;")
         rows = cursor.fetchall()
-        for row in rows:
-            (year, winner) = row
-            print('  ', f'"{year}"', 'Winner:', f'({winner})')
+        for row in rows: 
+            (country, wins) = row
+            print('  ', f'"{country}"', f'({wins})', 'wins')
+        return
     except mysql.connector.Error as err:
         if DEBUG:
             sys.stderr(err)
             sys.exit(1)
         else:
             sys.stderr('An error occurred.')
-
-def team_wins_query():
+# ----------------------------------------------------------------------
+# Functions for Logging Users In
+# ----------------------------------------------------------------------
+def log_in():
     """
-    Shows a list of countries with their total number of World Cup titles.
-    Results are sorted by total titles in descending order.
+    Prompts user for username and password to log in to database.
     """
     cursor = conn.cursor()
-    sql = """
-SELECT winner AS country, COUNT(*) AS titles
-FROM tournaments 
-GROUP BY winner ORDER BY titles DESC;
-"""
+    username = input('Enter username: ')
+    password = input('Enter password: ')
+    func = "SELECT authenticate(%s, %s);"
     try:
-        cursor.execute(sql)
-        rows = cursor.fetchall()
-        for row in rows:
-            (country, titles) = row
-            print('  ', f'"{country}"',':', f'({titles})', 'Titles')
+        cursor.execute(func, (username, password))
+        result = cursor.fetchone()
+        if int(result[0]) == 1:
+            print('Sucessfully logged in.')
+        else:
+            print('Invalid username or password.')
     except mysql.connector.Error as err:
         if DEBUG:
             sys.stderr(err)
             sys.exit(1)
         else:
             sys.stderr('An error occurred.')
-
 # ----------------------------------------------------------------------
 # Command-Line Functionality
 # ----------------------------------------------------------------------
-def show_options():
+
+def show_admin_options():
     """
-    Displays options users can choose in the application, such as (g), (y),
-    and (w) to view and (q) to quit.
+    Displays options specific for admins, such as adding new data <a>,
+    logging in (l), and quitting (q).
     """
     print('What would you like to do? ')
-    # print('  (l) login')
-    print('  (g) view all time top World Cup goal scorers')
-    print('  (y) view World Cup winners by year')
-    print('  (w) view teams with most World Cup titles')
+    print('  (l) - login')
+    print('  (a) - add new World Cup tournament data')
     print('  (q) - quit')
     print()
     while True:
         ans = input('Enter an option: ')[0].lower()
         if ans == 'q':
             quit_ui()
-        # elif ans == 'l':
-            # log_in()
-        elif ans == 'g':
-            player_goals_query()
-        elif ans == 'y':
-            year_wins_query()
-        elif ans == 'w':
-            team_wins_query()
+        elif ans == 'l':
+            log_in()
+        elif ans == 'a':
+            add_data()
         else:
-            print('Unkown option.')
+            print('Unkown option')
+
 
 def quit_ui():
     """
     Quits the program, printing a good bye message to the user.
     """
     print('Good bye!')
-    print('SIIIIIUUU')
+    print('SIIIIUUUUU')
     exit()
 
 
@@ -159,7 +143,7 @@ def main():
     """
     Main function for starting things up.
     """
-    show_options()
+    show_admin_options()
 
 
 if __name__ == '__main__':
