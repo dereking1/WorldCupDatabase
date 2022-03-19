@@ -1,5 +1,9 @@
 # WorldCupDatabase
 
+CS121 Final Project
+
+No member of the Caltech community shall take unfair advantage of any other member of the Caltech community.
+
 Our data comes from: <br/>
 https://www.kaggle.com/abecklas/fifa-world-cup <br/>
 https://github.com/mneedham/neo4j-worldcup/tree/master/data <br/>
