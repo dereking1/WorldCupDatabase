@@ -1,6 +1,6 @@
 # WorldCupDatabase
 
-CS121 Final Project
+Caltech CS121 Relational Databases Final Project
 
 No member of the Caltech community shall take unfair advantage of any other member of the Caltech community.
 
